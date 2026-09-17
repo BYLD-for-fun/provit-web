@@ -9,10 +9,10 @@
   'use strict';
 
   var ENDPOINT =
-    (typeof window !== 'undefined' && window.SHAMAC_CONFIG && window.SHAMAC_CONFIG.WAITLIST_URL) ||
+    (typeof window !== 'undefined' && window.PROVIT_CONFIG && window.PROVIT_CONFIG.WAITLIST_URL) ||
     '';
 
-  var STORED = 'shamac_waitlist_email';
+  var STORED = 'provit_waitlist_email';
 
   function isValidEmail(value) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);

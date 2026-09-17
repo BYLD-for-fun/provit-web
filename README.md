@@ -1,4 +1,4 @@
-# Shamac — marketing site and waitlist
+# Provit — marketing site and waitlist
 
 Single static page. No framework, no build step beyond minification, no runtime dependencies.
 Same shape as `facescan-signup`: hand-written HTML/CSS/JS, a Google Apps Script backing the
@@ -60,11 +60,11 @@ For a custom domain, add it in the Vercel dashboard and point DNS there. `facesc
 
 ## The name
 
-The site says **Shamac** throughout because that is the app's name today. Once the new name is
+The site says **Provit** throughout because that is the app's name today. Once the new name is
 decided:
 
 ```sh
-node rename.mjs Shamac
+node rename.mjs Provit
 ```
 
 It rewrites every occurrence across the source files and prints what it changed. Do this **before

@@ -1,5 +1,5 @@
 /**
- * Shamac waitlist backend.
+ * Provit waitlist backend.
  *
  * Deploy this as a Google Apps Script Web App bound to a Google Sheet, then put the resulting
  * /exec URL in config.js as WAITLIST_URL.

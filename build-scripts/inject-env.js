@@ -39,7 +39,7 @@ if (!/^https:\/\/script\.google(usercontent)?\.com\//.test(url)) {
 fs.mkdirSync(path.dirname(out), { recursive: true });
 fs.writeFileSync(
   out,
-  `window.SHAMAC_CONFIG = { WAITLIST_URL: ${JSON.stringify(url)} };\n`,
+  `window.PROVIT_CONFIG = { WAITLIST_URL: ${JSON.stringify(url)} };\n`,
   'utf8',
 );
 console.log('inject-env: wrote public/config.js');

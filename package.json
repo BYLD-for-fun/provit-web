@@ -1,8 +1,8 @@
 {
-  "name": "shamac-web",
+  "name": "provit-web",
   "version": "1.0.0",
   "private": true,
-  "description": "Shamac marketing site and waitlist",
+  "description": "Provit marketing site and waitlist",
   "scripts": {
     "clean": "rimraf public",
     "build": "npm run clean && npm run copy && npm run inject-env && npm run minify:js && npm run minify:css",
