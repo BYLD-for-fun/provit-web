@@ -3,7 +3,12 @@
  *
  * Palette and type are lifted from the app itself (src/ui/theme.tsx in the app repo): warm paper
  * canvas, ink text, one deep green accent. Keep them in step -- someone who joins the waitlist
- * here should recognise the app when it lands.
+ * here should recognise the app when it lands. The tokens below are the app's; everything after
+ * them is derived from those tokens rather than introducing new colour.
+ *
+ * The page draws itself: no image files, only CSS and inline SVG. Partly taste, partly the CSP,
+ * which allows images from 'self' and data: only -- and partly because a waitlist page that waits
+ * on a hero photograph is slower than one that does not.
  */
 
 :root {
@@ -19,8 +24,17 @@
   --on-accent: #ffffff;
   --lost: #c2432a;
 
-  --measure: 62rem;
+  /* Depth. Two steps only, resting and lifted: more than that and the page starts to fidget. */
+  --shadow-1: 0 1px 2px rgba(22, 33, 27, 0.04), 0 2px 8px rgba(22, 33, 27, 0.04);
+  --shadow-2: 0 2px 4px rgba(22, 33, 27, 0.05), 0 14px 36px -10px rgba(22, 33, 27, 0.16);
+  --glow: rgba(23, 122, 78, 0.13);
+  --accent-quiet: rgba(23, 122, 78, 0.09);
+  --hairline: rgba(22, 33, 27, 0.07);
+
+  --measure: 66rem;
   --radius: 14px;
+  --radius-lg: 22px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
   --font-display: 'Archivo', system-ui, sans-serif;
   --font-body: 'Geist', system-ui, -apple-system, sans-serif;
   --font-mono: 'Geist Mono', ui-monospace, monospace;
@@ -39,6 +53,13 @@
     --soft: #0c3524;
     --on-accent: #0e1411;
     --lost: #e06a4f;
+
+    /* Dark needs deeper shadow and a brighter glow to read as depth at all. */
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.32);
+    --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.38), 0 20px 44px -12px rgba(0, 0, 0, 0.66);
+    --glow: rgba(63, 190, 133, 0.15);
+    --accent-quiet: rgba(63, 190, 133, 0.12);
+    --hairline: rgba(231, 239, 233, 0.08);
   }
 }
 
@@ -46,6 +67,12 @@
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* The nav is sticky, so an anchor jump has to clear it. */
+  scroll-padding-top: 5.5rem;
 }
 
 body {
@@ -56,6 +83,7 @@ body {
   font-size: 17px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 h1,
@@ -63,29 +91,37 @@ h2,
 h3 {
   font-family: var(--font-display);
   font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.12;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
   margin: 0;
+  text-wrap: balance;
 }
 
 h1 {
-  font-size: clamp(2.4rem, 7vw, 4.2rem);
+  font-size: clamp(2.4rem, 5.6vw, 3.9rem);
 }
 h2 {
-  font-size: clamp(1.7rem, 4vw, 2.5rem);
-  margin-bottom: 0.6em;
+  font-size: clamp(1.8rem, 4vw, 2.7rem);
+  margin-bottom: 0.55em;
 }
 h3 {
   font-size: 1.15rem;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
 p {
   margin: 0 0 1em;
+  text-wrap: pretty;
 }
 
 a {
   color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 .sr-only {
@@ -99,49 +135,188 @@ a {
   border: 0;
 }
 
+/* ---------- the mono label above every section ---------- */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 1rem;
+}
+
+.tag::before {
+  content: '';
+  width: 1.6rem;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.55;
+}
+
+/* ---------- scroll reveal ----------
+ *
+ * Gated on .js-reveal, which script.js puts on <html>. If the script never runs the content is
+ * simply visible: a marketing page that hides its own copy behind a failed observer is worse
+ * than one that never animates.
+ */
+
+.js-reveal .reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.7s var(--ease),
+    transform 0.7s var(--ease);
+}
+
+.js-reveal .reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Grids opt in to a sequenced arrival with .stagger. Deliberately not applied to every revealed
+ * block: the form messages live inside one, and they must animate when they unhide, not on
+ * scroll. */
+.js-reveal .stagger.in > * {
+  animation: rise 0.6s var(--ease) both;
+}
+
+.js-reveal .stagger.in > *:nth-child(2) {
+  animation-delay: 0.07s;
+}
+.js-reveal .stagger.in > *:nth-child(3) {
+  animation-delay: 0.14s;
+}
+.js-reveal .stagger.in > *:nth-child(4) {
+  animation-delay: 0.21s;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
 /* ---------- nav ---------- */
 
 .nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 1rem 1.5rem;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    border-color 0.3s var(--ease),
+    background-color 0.3s var(--ease);
+}
+
+/* Only once there is content behind it does the bar become a bar. */
+.nav.scrolled {
+  background: var(--canvas);
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  .nav.scrolled {
+    background: color-mix(in srgb, var(--canvas) 93%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    backdrop-filter: blur(20px) saturate(140%);
+  }
+}
+
+/* script.js adds .scrolled once the page has moved, so the bar only draws an edge when there is
+ * something above it to separate from. */
+.nav.scrolled {
+  border-bottom-color: var(--border);
+}
+
+.nav-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  flex-wrap: wrap;
+  width: 100%;
   max-width: var(--measure);
   margin: 0 auto;
-  padding: 1.4rem 1.5rem;
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.25rem;
-  letter-spacing: -0.02em;
+  font-size: 1.22rem;
+  letter-spacing: -0.03em;
   text-decoration: none;
+}
+
+.brand-mark {
+  width: 1.55rem;
+  height: 1.55rem;
+  color: var(--accent);
+  flex: none;
 }
 
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  font-size: 0.94rem;
+  gap: 1.6rem;
+  font-size: 0.93rem;
 }
 
 .nav-links a {
+  position: relative;
   color: var(--text-secondary);
   text-decoration: none;
+  padding: 0.2rem 0;
+  transition: color 0.2s var(--ease);
+}
+
+/* An underline that grows from the left beats a colour change on its own: it gives the pointer
+ * something to land on. */
+.nav-links a:not(.nav-cta)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1.5px;
+  width: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s var(--ease);
 }
 
 .nav-links a:hover {
-  color: var(--accent);
+  color: var(--text);
+}
+
+.nav-links a:not(.nav-cta):hover::after {
+  transform: scaleX(1);
 }
 
 .nav-cta {
-  color: var(--accent) !important;
+  color: var(--on-accent) !important;
+  background: var(--accent);
   font-weight: 600;
+  padding: 0.5rem 1rem !important;
+  border-radius: 999px;
+  transition:
+    transform 0.2s var(--ease),
+    box-shadow 0.2s var(--ease);
 }
 
-@media (max-width: 640px) {
+.nav-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px -6px var(--accent);
+}
+
+@media (max-width: 720px) {
   .nav-links a:not(.nav-cta) {
     display: none;
   }
@@ -150,66 +325,428 @@ a {
 /* ---------- hero ---------- */
 
 .hero {
+  position: relative;
   max-width: var(--measure);
   margin: 0 auto;
-  padding: 3.5rem 1.5rem 4.5rem;
+  padding: 4rem 1.5rem 5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+  gap: 3.5rem;
+  align-items: center;
 }
 
+/* Warm light from the top left, and a faint paper grid. Both are decoration, both are cheap, and
+ * together they stop the fold from reading as a blank sheet. */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: -12rem -30% auto -30%;
+  height: 46rem;
+  background:
+    radial-gradient(42% 50% at 22% 28%, var(--glow), transparent 68%),
+    radial-gradient(34% 44% at 82% 8%, var(--accent-quiet), transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 30rem;
+  background-image: radial-gradient(var(--border) 1px, transparent 1px);
+  background-size: 24px 24px;
+  -webkit-mask-image: radial-gradient(70% 60% at 30% 20%, #000, transparent 72%);
+  mask-image: radial-gradient(70% 60% at 30% 20%, #000, transparent 72%);
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.hero-copy {
+  min-width: 0;
+}
+
+/* A pill rather than a line of mono text: it reads as a status instead of a subtitle. */
 .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.73rem;
   letter-spacing: 0.14em;
-  color: var(--muted);
-  margin-bottom: 1.2rem;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem 0.4rem 0.7rem;
+  margin: 0 0 1.6rem;
+  box-shadow: var(--shadow-1);
+}
+
+.pulse {
+  position: relative;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
+}
+
+.pulse::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2.4s ease-out infinite;
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(3.4);
+  }
+}
+
+/* The promise is the product, so the phrase naming it takes the accent and a drawn underline,
+ * and no second colour appears anywhere else on the page. */
+.hero h1 em {
+  font-style: normal;
+  color: var(--accent);
+  position: relative;
+  white-space: nowrap;
+}
+
+.hero h1 em::after {
+  content: '';
+  position: absolute;
+  left: -0.06em;
+  right: -0.06em;
+  bottom: -0.1em;
+  height: 0.14em;
+  background: var(--accent);
+  border-radius: 999px;
+  opacity: 0.4;
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: draw 0.9s var(--ease) 0.35s both;
+}
+
+@keyframes draw {
+  to {
+    transform: scaleX(1);
+  }
 }
 
 .lede {
-  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+  font-size: clamp(1.06rem, 1.6vw, 1.22rem);
   color: var(--text-secondary);
   max-width: 34em;
-  margin-top: 1.4rem;
+  margin-top: 1.5rem;
+}
+
+/* ---------- hero visual ----------
+ *
+ * A drawn approximation of a live promise. Decorative and aria-hidden: it stands in for the
+ * app's own screen, and a screen reader announcing a fictional promise would be a lie told
+ * twice.
+ */
+
+.hero-visual {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+/* A second sheet behind the card, just enough to suggest a stack. */
+.hero-visual::before {
+  content: '';
+  position: absolute;
+  inset: 5% 1% -3% 5%;
+  background: var(--raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transform: rotate(3deg);
+  opacity: 0.7;
+}
+
+.mock {
+  position: relative;
+  width: 100%;
+  max-width: 21rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.35rem;
+  box-shadow: var(--shadow-2);
+  transform: rotate(-1.6deg);
+  transition: transform 0.5s var(--ease);
+  animation: float 7s ease-in-out infinite;
+}
+
+.hero-visual:hover .mock {
+  transform: rotate(0deg) translateY(-4px);
+  animation-play-state: paused;
+}
+
+@keyframes float {
+  50% {
+    transform: rotate(-1.6deg) translateY(-9px);
+  }
+}
+
+.mock-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+
+.mock-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.3rem;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 0 0 0.45rem;
+}
+
+.mock-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0 0 1.1rem;
+}
+
+.mock-meta strong {
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-family: var(--font-mono);
+}
+
+/* Time left, filling once on arrival. Nothing counts down for real: a fake ticking clock is a
+ * small dishonesty that costs more than it buys. */
+.mock-bar {
+  height: 5px;
+  border-radius: 999px;
+  background: var(--raised);
+  overflow: hidden;
+  margin-bottom: 1.2rem;
+}
+
+.mock-bar span {
+  display: block;
+  height: 100%;
+  width: 62%;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--accent),
+    color-mix(in srgb, var(--accent) 55%, var(--canvas))
+  );
+  transform-origin: left;
+  animation: fill 1.4s var(--ease) 0.5s both;
+}
+
+@keyframes fill {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.mock-stake {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem;
+  background: var(--canvas);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* The staked photo: present, obviously unviewable. A blur over a gradient says "locked" faster
+ * than the word does. */
+.mock-photo {
+  position: relative;
+  width: 2.9rem;
+  height: 2.9rem;
+  flex: none;
+  border-radius: 10px;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--soft), var(--accent-quiet) 55%, var(--raised));
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+}
+
+.mock-photo::before {
+  content: '';
+  position: absolute;
+  inset: -30%;
+  background:
+    radial-gradient(30% 34% at 28% 30%, var(--accent), transparent 70%),
+    radial-gradient(34% 30% at 74% 68%, var(--lost), transparent 70%);
+  filter: blur(9px);
+  opacity: 0.4;
+}
+
+.mock-photo svg {
+  position: relative;
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.mock-stake-title {
+  font-weight: 600;
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+.mock-stake-sub {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.mock-faces {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+}
+
+.faces {
+  display: flex;
+}
+
+.face {
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--accent);
+  background: var(--soft);
+  border: 2px solid var(--surface);
+  margin-left: -0.5rem;
+}
+
+.face:first-child {
+  margin-left: 0;
+}
+
+.mock-faces-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    padding-top: 3rem;
+  }
+
+  /* On a phone the card sits below the form, where it reads as reassurance rather than as the
+   * thing competing with the headline. */
+  .hero-visual {
+    order: 3;
+    justify-content: flex-start;
+    /* The ghost sheet is positioned against this box, so without a cap it stretches the whole
+     * column and stops reading as a second card. */
+    max-width: 22rem;
+  }
+
+  .mock {
+    max-width: 22rem;
+  }
 }
 
 /* ---------- form ---------- */
 
 .signup-form {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
   max-width: 30rem;
   margin-top: 2rem;
+  padding: 0.35rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: var(--shadow-1);
+  transition:
+    border-color 0.25s var(--ease),
+    box-shadow 0.25s var(--ease);
+}
+
+.signup-form:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-quiet);
 }
 
 .signup-form input {
-  flex: 1 1 15rem;
+  flex: 1 1 12rem;
   min-width: 0;
-  padding: 0.85rem 1rem;
+  padding: 0.7rem 0.6rem 0.7rem 1.1rem;
   font: inherit;
   font-size: 1rem;
   color: var(--text);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
 }
 
+/* The wrapper already shows focus, and a second ring inside it just looks broken. */
 .signup-form input:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
+  outline: none;
+}
+
+.signup-form input::placeholder {
+  color: var(--muted);
 }
 
 .signup-form button {
-  padding: 0.85rem 1.4rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.3rem;
   font: inherit;
   font-weight: 600;
   color: var(--on-accent);
   background: var(--accent);
   border: 0;
-  border-radius: var(--radius);
+  border-radius: 999px;
   cursor: pointer;
+  white-space: nowrap;
+  transition:
+    transform 0.2s var(--ease),
+    box-shadow 0.2s var(--ease),
+    filter 0.2s var(--ease);
 }
 
 .signup-form button:hover:not(:disabled) {
-  filter: brightness(1.08);
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px -8px var(--accent);
+}
+
+.signup-form button:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .signup-form button:disabled {
@@ -217,16 +754,57 @@ a {
   cursor: progress;
 }
 
+.btn-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.btn-arrow {
+  width: 0.85rem;
+  height: 0.85rem;
+  transition: transform 0.2s var(--ease);
+}
+
+.signup-form button:hover:not(:disabled) .btn-arrow {
+  transform: translateX(3px);
+}
+
+@media (max-width: 460px) {
+  /* Below this the pill wraps into something lopsided, so it becomes two stacked controls. */
+  .signup-form {
+    border-radius: var(--radius-lg);
+    padding: 0.5rem;
+  }
+
+  .signup-form input,
+  .signup-form button {
+    flex: 1 1 100%;
+    justify-content: center;
+    border-radius: var(--radius);
+  }
+}
+
 .form-note {
-  font-size: 0.87rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.86rem;
   color: var(--muted);
-  margin-top: 0.85rem;
+  margin-top: 0.9rem;
+}
+
+.form-note svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--accent);
+  flex: none;
 }
 
 .message {
   font-size: 0.95rem;
   margin-top: 0.9rem;
-  padding: 0.75rem 1rem;
+  padding: 0.8rem 1.1rem;
   border-radius: var(--radius);
   max-width: 30rem;
 }
@@ -234,6 +812,8 @@ a {
 .message.success {
   color: var(--accent);
   background: var(--soft);
+  border: 1px solid var(--accent-quiet);
+  animation: rise 0.5s var(--ease) both;
 }
 
 .message.error {
@@ -253,21 +833,16 @@ a {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .shake {
-    animation: none;
-  }
-}
-
 /* ---------- sections ---------- */
 
 .section {
   max-width: var(--measure);
   margin: 0 auto;
-  padding: 4rem 1.5rem;
+  padding: 5rem 1.5rem;
 }
 
 .section.alt {
+  position: relative;
   max-width: none;
   background: var(--raised);
   border-top: 1px solid var(--border);
@@ -283,8 +858,9 @@ a {
 .section-lede {
   color: var(--text-secondary);
   max-width: 38em;
-  margin-top: -0.2rem;
-  margin-bottom: 2.2rem;
+  margin-top: -0.1rem;
+  margin-bottom: 2.6rem;
+  font-size: 1.05rem;
 }
 
 /* ---------- steps ---------- */
@@ -295,15 +871,47 @@ a {
   margin: 0;
   display: grid;
   gap: 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.steps li {
+  position: relative;
+  padding-top: 2.2rem;
+}
+
+/* A rule across the top of each step, with an accent segment marking where this one begins. It
+ * reads as one run of three rather than three unrelated columns. */
+.steps li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: -2rem;
+  height: 2px;
+  background: var(--border);
+}
+
+.steps li:last-child::before {
+  right: 0;
+}
+
+.steps li::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2.2rem;
+  height: 2px;
+  background: var(--accent);
 }
 
 .step-num {
   display: block;
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
   color: var(--accent);
-  margin-bottom: 0.7rem;
+  margin-bottom: 0.6rem;
 }
 
 .steps h3 {
@@ -324,18 +932,37 @@ a {
 }
 
 .card {
+  position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.6rem;
+  border-radius: var(--radius-lg);
+  padding: 1.7rem;
+  transition:
+    transform 0.3s var(--ease),
+    box-shadow 0.3s var(--ease),
+    border-color 0.3s var(--ease);
 }
 
-.card.plain {
-  background: transparent;
-  border: 0;
-  border-top: 2px solid var(--border);
-  border-radius: 0;
-  padding: 1.4rem 0 0;
+.card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+  box-shadow: var(--shadow-2);
+}
+
+.card-icon {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 12px;
+  background: var(--soft);
+  color: var(--accent);
+  margin-bottom: 1.1rem;
+}
+
+.card-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .card h3 {
@@ -347,25 +974,69 @@ a {
   margin-bottom: 0;
 }
 
+.cards.duo {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 46rem) {
+  .cards.duo {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* The guardrails read as a list of principles, so they get a rule and no box. */
+.card.plain {
+  background: transparent;
+  border: 0;
+  border-top: 2px solid var(--border);
+  border-radius: 0;
+  padding: 1.4rem 0 0;
+  transition: border-color 0.3s var(--ease);
+}
+
+.card.plain:hover {
+  transform: none;
+  box-shadow: none;
+  border-top-color: var(--accent);
+}
+
+.card.plain h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.card.plain h3 svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--accent);
+  flex: none;
+}
+
 .ticks {
   list-style: none;
-  padding: 0;
+  padding: 1.2rem 0 0;
   margin: 1.2rem 0 0;
-  font-size: 0.93rem;
+  border-top: 1px solid var(--hairline);
+  font-size: 0.92rem;
   color: var(--text-secondary);
 }
 
 .ticks li {
-  padding-left: 1.5rem;
-  margin-bottom: 0.45rem;
+  padding-left: 1.6rem;
+  margin-bottom: 0.5rem;
   position: relative;
+}
+
+.ticks li:last-child {
+  margin-bottom: 0;
 }
 
 .ticks li::before {
   content: '';
   position: absolute;
-  left: 0.15rem;
-  top: 0.52em;
+  left: 0.2rem;
+  top: 0.5em;
   width: 0.42rem;
   height: 0.22rem;
   border-left: 2px solid var(--accent);
@@ -377,8 +1048,24 @@ a {
 
 .privacy-grid {
   display: grid;
-  gap: 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1.8rem 2.6rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 46rem) {
+  .privacy-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.privacy-grid > div {
+  padding-left: 1.2rem;
+  border-left: 2px solid var(--border);
+  transition: border-color 0.3s var(--ease);
+}
+
+.privacy-grid > div:hover {
+  border-left-color: var(--accent);
 }
 
 .privacy-grid h3 {
@@ -388,37 +1075,72 @@ a {
 .privacy-grid p {
   color: var(--text-secondary);
   margin: 0;
+  font-size: 0.97rem;
 }
 
 /* ---------- join ---------- */
 
 .join {
+  padding-top: 1rem;
+}
+
+/* A panel rather than another run of centred text, so the last ask on the page looks like an
+ * object you act on. */
+.join-panel {
+  position: relative;
+  overflow: hidden;
   text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 3.5rem 1.5rem;
+  box-shadow: var(--shadow-2);
 }
 
-.join .section-lede {
+.join-panel::before {
+  content: '';
+  position: absolute;
+  inset: -60% -20% auto;
+  height: 24rem;
+  background: radial-gradient(40% 50% at 50% 60%, var(--glow), transparent 70%);
+  pointer-events: none;
+}
+
+.join-panel > * {
+  position: relative;
+}
+
+.join-panel .tag,
+.join-panel .section-lede,
+.join-panel .signup-form,
+.join-panel .message,
+.join-panel .form-note {
   margin-left: auto;
   margin-right: auto;
 }
 
-.join .signup-form {
-  margin-left: auto;
-  margin-right: auto;
+.join-panel .section-lede {
+  margin-bottom: 2rem;
 }
 
-.join .message {
-  margin-left: auto;
-  margin-right: auto;
+.join-panel .form-note {
+  justify-content: center;
 }
 
 /* ---------- footer ---------- */
 
 .footer {
   border-top: 1px solid var(--border);
-  padding: 2.5rem 1.5rem 3rem;
+  padding: 3rem 1.5rem;
+  margin-top: 1rem;
 }
 
 .footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
   max-width: var(--measure);
   margin: 0 auto;
   font-size: 0.92rem;
@@ -426,29 +1148,112 @@ a {
 }
 
 .brand-small {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
   font-family: var(--font-display);
   font-weight: 700;
+  font-size: 1.05rem;
   color: var(--text);
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.15rem;
+}
+
+.brand-small svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  color: var(--accent);
 }
 
 .footer-copy {
-  margin-bottom: 1rem;
+  margin: 0;
+}
+
+.footer-right {
+  text-align: right;
 }
 
 .footer-links {
   display: flex;
   gap: 0.6rem;
   flex-wrap: wrap;
-  margin-bottom: 0.5rem;
+  justify-content: flex-end;
+  margin: 0 0 0.4rem;
 }
 
 .footer-links a {
   color: var(--accent);
   text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s var(--ease);
+}
+
+.footer-links a:hover {
+  border-bottom-color: var(--accent);
 }
 
 .footer-legal {
   margin: 0;
   font-size: 0.85rem;
+}
+
+@media (max-width: 560px) {
+  .footer-inner {
+    align-items: flex-start;
+  }
+
+  .footer-right,
+  .footer-links {
+    text-align: left;
+    justify-content: flex-start;
+  }
+}
+
+/* ---------- motion, opted out ----------
+ *
+ * One block, at the end, so there is a single place to check that nothing moves for someone who
+ * asked for that. Everything here is decorative; nothing load-bearing depends on it.
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .js-reveal .reveal {
+    opacity: 1;
+    transform: none;
+  }
+
+  .hero h1 em::after,
+  .mock-bar span {
+    transform: none;
+  }
+
+  .mock,
+  .hero-visual:hover .mock {
+    transform: rotate(-1.6deg);
+  }
+}
+
+/* Both button states sit on the same baseline, so swapping them does not nudge the label. */
+.btn-loading {
+  display: inline-flex;
+  align-items: center;
+}
+
+/*
+ * Several things here are flex or grid containers that the script hides with the hidden
+ * attribute -- the loading label, the form note. A display declaration outranks the UA rule for
+ * [hidden], so without this they stay visible when hidden, which is exactly the bug it looks
+ * like. Keep this last.
+ */
+[hidden] {
+  display: none !important;
 }

@@ -116,6 +116,68 @@
     }
   }
 
+  /*
+   * Presentation. Everything below is decoration and every piece of it degrades to "visible and
+   * static" -- the .js-reveal class is what arms the hidden-until-scrolled styles, so a browser
+   * that never gets here shows the whole page instead of a blank one.
+   */
+  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function revealOnScroll() {
+    var targets = document.querySelectorAll('.reveal');
+    if (!targets.length) return;
+
+    // No observer, or motion turned down: show everything and leave it alone.
+    if (still || typeof IntersectionObserver === 'undefined') {
+      for (var i = 0; i < targets.length; i++) targets[i].classList.add('in');
+      return;
+    }
+
+    document.documentElement.classList.add('js-reveal');
+
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('in');
+          // One-way: re-hiding on the way back up makes a page feel nervous.
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: '0px 0px -12% 0px', threshold: 0.08 },
+    );
+
+    for (var j = 0; j < targets.length; j++) observer.observe(targets[j]);
+  }
+
+  /** The sticky bar only draws its bottom edge once there is content behind it. */
+  function navOnScroll() {
+    var nav = document.querySelector('.nav');
+    if (!nav) return;
+
+    var ticking = false;
+
+    function update() {
+      nav.classList.toggle('scrolled', window.scrollY > 8);
+      ticking = false;
+    }
+
+    window.addEventListener(
+      'scroll',
+      function () {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(update);
+      },
+      { passive: true },
+    );
+
+    update();
+  }
+
+  revealOnScroll();
+  navOnScroll();
+
   wire(document.getElementById('signupForm'));
   wire(document.getElementById('signupFormFooter'));
 
