@@ -1,0 +1,56 @@
+# Builds the site and publishes public/ to GitHub Pages.
+#
+# WAITLIST_URL must exist as a repository secret before the first run. Without it
+# build-scripts/inject-env.js exits non-zero on purpose, so a missing endpoint fails the
+# deploy instead of shipping a form that drops every signup.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deploy finish being superseded rather than racing it.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+        env:
+          WAITLIST_URL: ${{ secrets.WAITLIST_URL }}
+
+      # The Pages artifact path skips Jekyll already; this keeps a branch-based deploy
+      # working too if anyone ever switches away from Actions.
+      - run: touch public/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

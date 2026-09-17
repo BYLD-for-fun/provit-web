@@ -2,7 +2,7 @@
 
 Single static page. No framework, no build step beyond minification, no runtime dependencies.
 Same shape as `facescan-signup`: hand-written HTML/CSS/JS, a Google Apps Script backing the
-waitlist, Vercel for hosting.
+waitlist, GitHub Pages for hosting.
 
 ```
 index.html              the page
@@ -11,6 +11,7 @@ script.js               waitlist submission for both forms
 config.example.js       copy to config.js and add your endpoint
 google-apps-script.gs   paste into a Sheet-bound Apps Script project
 build-scripts/          injects WAITLIST_URL at build time
+.github/workflows/      builds and publishes to GitHub Pages
 rename.mjs              one-pass rename when the app's name is settled
 ```
 
@@ -42,7 +43,7 @@ posts without credentials. Two consequences worth knowing:
 
 - Anyone who reads the page source can find the URL and post to it. There is no hardcoded
   fallback in `script.js` for exactly this reason, but the built `config.js` still ships it. If it
-  gets abused, redeploy the Apps Script for a new URL and change one Vercel env var.
+  gets abused, redeploy the Apps Script for a new URL and change one repository secret.
 - **Treat the sheet as untrusted input.** Never paste a cell into a shell, a formula or an HTML
   page without escaping it.
 
@@ -51,12 +52,33 @@ Cloudflare Turnstile or reCAPTCHA check — say the word and it is a small addit
 
 ## Deploying
 
-Vercel project → import this repo → it picks up `vercel.json` (build command, output directory,
-security headers). Add `WAITLIST_URL` to the environment variables before the first deploy, or
-the build fails deliberately rather than shipping a form that silently drops signups.
+GitHub Pages is the live host. `.github/workflows/deploy.yml` builds on every push to `master`
+and publishes `public/` through the Pages artifact, so nothing built is committed.
 
-For a custom domain, add it in the Vercel dashboard and point DNS there. `facescan-signup` uses a
-`CNAME` file; that is a GitHub Pages convention and is not needed on Vercel.
+First-time setup:
+
+1. Push the repo to GitHub.
+2. Settings → Pages → **Source: GitHub Actions**.
+3. Settings → Secrets and variables → Actions → **New repository secret**, named
+   `WAITLIST_URL`, holding the Apps Script `/exec` URL.
+4. Push, or run the workflow from the Actions tab. The run summary links the live URL.
+
+Do step 3 before the first run: without it the build exits non-zero on purpose rather than
+shipping a form that drops every signup.
+
+The site is served from `https://<user>.github.io/<repo>/` unless a custom domain or a
+`<user>.github.io` repo name is used. Every asset path in `index.html` is relative, so the
+subpath works as-is.
+
+For a custom domain, add it in Settings → Pages and point DNS there. Pages then writes a `CNAME`
+file into the branch it serves; with an Actions deploy the domain setting is enough and no file
+needs committing.
+
+`vercel.json` is left in place and still works if the project is ever imported there — that path
+wants `WAITLIST_URL` as a Vercel environment variable instead of a repo secret. One difference
+matters: Vercel sends real security headers, and **Pages cannot send any**. The CSP is restated
+as a `<meta>` tag in `index.html` to cover most of it, but `X-Frame-Options` and
+`frame-ancestors` have no meta equivalent and are unavailable on Pages.
 
 ## The name
 

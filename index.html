@@ -3,6 +3,14 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<!--
+  GitHub Pages cannot send HTTP headers, so the policy vercel.json sets there is restated here.
+  Keep the two in sync: a browser enforces both and takes the intersection, so tightening one
+  and not the other quietly changes the effective policy. frame-ancestors and X-Frame-Options
+  have no meta equivalent and are simply unavailable on Pages.
+-->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://script.google.com https://script.googleusercontent.com; form-action 'none'; base-uri 'none'" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
 <title>Provit — Give your word. Keep it.</title>
 <meta name="description" content="Make a promise to your friends and put something real on the line. If you miss, they find out, and the consequence you chose happens on its own." />
 <meta name="theme-color" content="#F8F6F0" media="(prefers-color-scheme: light)" />
