@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Shamac — Give your word. Keep it.</title>
+<meta name="description" content="Make a promise to your friends and put something real on the line. If you miss, they find out, and the consequence you chose happens on its own." />
+<meta name="theme-color" content="#F8F6F0" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#0E1411" media="(prefers-color-scheme: dark)" />
+<meta property="og:title" content="Shamac — Give your word. Keep it." />
+<meta property="og:description" content="Make a promise to your friends and put something real on the line." />
+<meta property="og:type" content="website" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400&amp;display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="nav">
+  <a class="brand" href="#top">Shamac</a>
+  <nav class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#stakes">The stakes</a>
+    <a href="#privacy">Privacy</a>
+    <a class="nav-cta" href="#join">Join the waitlist</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <p class="eyebrow">COMING TO IPHONE</p>
+    <h1>Give your word.<br />Then actually keep it.</h1>
+    <p class="lede">
+      Tell your friends what you are going to do and when. Put something real on the line.
+      Finish in time and nothing happens, which is the whole point. Miss, and the consequence
+      you chose happens on its own.
+    </p>
+
+    <form id="signupForm" class="signup-form" novalidate>
+      <label class="sr-only" for="emailInput">Email address</label>
+      <input id="emailInput" name="email" type="email" inputmode="email" autocomplete="email"
+             placeholder="you@example.com" required />
+      <button id="submitBtn" type="submit">
+        <span class="btn-text">Join the waitlist</span>
+        <span class="btn-loading" hidden>Joining…</span>
+      </button>
+    </form>
+    <p class="form-note">No spam. One email when it is ready, and nothing else.</p>
+    <p class="message success" data-success hidden role="status">
+      You are on the list. We will email you once, when there is room.
+    </p>
+    <p class="message error" data-error hidden role="alert"></p>
+  </section>
+
+  <section id="how" class="section">
+    <h2>How it works</h2>
+    <ol class="steps">
+      <li>
+        <span class="step-num">01</span>
+        <h3>Give your word</h3>
+        <p>
+          What you are going to do, by when, and how you will know it is done. That last part
+          matters. &ldquo;Read more&rdquo; is a wish. &ldquo;Finished the last chapter&rdquo; is
+          a promise.
+        </p>
+      </li>
+      <li>
+        <span class="step-num">02</span>
+        <h3>Put something on the line</h3>
+        <p>
+          Lock a photo your friends only see if you miss, or put the apps you reach for behind
+          a lock. You choose the consequence while you are still feeling confident.
+        </p>
+      </li>
+      <li>
+        <span class="step-num">03</span>
+        <h3>Your circle sees the outcome</h3>
+        <p>
+          Your accepted friends see the promise, cheer you on, and find out either way. The
+          deadline is kept by our servers, not by your phone.
+        </p>
+      </li>
+    </ol>
+  </section>
+
+  <section id="stakes" class="section alt">
+    <h2>Pick what you are risking</h2>
+    <p class="section-lede">
+      A promise with nothing behind it is a wish. Choose the kind of consequence that would
+      actually get you out of the chair.
+    </p>
+    <div class="cards">
+      <article class="card">
+        <h3>A locked photo</h3>
+        <p>
+          Choose one photo when you make the promise. It is uploaded privately and stays locked.
+          Miss your deadline and it unlocks, for your accepted friends only, for 24 hours. You
+          can take it down sooner whenever you want.
+        </p>
+        <ul class="ticks">
+          <li>Only your accepted friends, never a public feed</li>
+          <li>24 hours, then it is deleted</li>
+          <li>You can remove it early</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>The apps you would miss</h3>
+        <p>
+          Pick the apps you open without thinking. Miss your deadline and they are shielded on
+          your iPhone for as long as you set, from an hour to a week. Your friends are told it
+          happened, never which apps you chose.
+        </p>
+        <ul class="ticks">
+          <li>You choose the apps and the duration up front</li>
+          <li>Timed by our servers, so the clock cannot be moved</li>
+          <li>Friends see the outcome, not your app list</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Built to be kind, not cruel</h2>
+    <div class="cards">
+      <article class="card plain">
+        <h3>Your circle only</h3>
+        <p>
+          Friends are added one at a time, by username, and both people have to agree. There is
+          no discovery, no suggested people, no strangers, and no way for a promise to reach
+          anyone outside your circle.
+        </p>
+      </article>
+      <article class="card plain">
+        <h3>No leaderboards</h3>
+        <p>
+          No streak to protect, no ranking against your friends, no score. One promise at a time,
+          kept or missed. Nothing here is designed to make you feel behind.
+        </p>
+      </article>
+      <article class="card plain">
+        <h3>Honest corrections</h3>
+        <p>
+          If you genuinely finished before the deadline and a miss was recorded, you can correct
+          it and say why. The original stays in the history. Finishing late is still a miss, and
+          that is the deal you made.
+        </p>
+      </article>
+      <article class="card plain">
+        <h3>Backing out in the open</h3>
+        <p>
+          Change your mind before the deadline and you can withdraw, with a reason your friends
+          can read. Saying so out loud is not the same as quietly failing.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section id="privacy" class="section alt">
+    <h2>What happens to your things</h2>
+    <div class="privacy-grid">
+      <div>
+        <h3>Your photo</h3>
+        <p>
+          It is stored privately and shown to nobody unless you miss. It is served only to people
+          signed in and authorised at that moment, never cached, and deleted when the 24 hours
+          are up, when you remove it, or if the friendship ends. Locked means access is
+          restricted. It is not end-to-end encrypted, and a friend could screenshot it, so only
+          ever stake a photo you would genuinely be fine with those people seeing.
+        </p>
+      </div>
+      <div>
+        <h3>No AI, no scanning</h3>
+        <p>
+          Your photos are not analysed, scored, read by a model, or used to train anything. We
+          check that a file really is an image and that it is not too large. That is the whole
+          of it.
+        </p>
+      </div>
+      <div>
+        <h3>Your app choices</h3>
+        <p>
+          If you stake your apps, the list of which apps you picked stays on your iPhone, in a
+          form only the app can read. It is never sent to us and never shown to your friends.
+        </p>
+      </div>
+      <div>
+        <h3>Leaving</h3>
+        <p>
+          You can delete your account from inside the app, and your photos and content go with
+          it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="join" class="section join">
+    <h2>Be there when it opens</h2>
+    <p class="section-lede">
+      We are building this slowly and letting people in a few at a time. Leave your email and we
+      will tell you when there is room.
+    </p>
+    <form id="signupFormFooter" class="signup-form" novalidate>
+      <label class="sr-only" for="emailInputFooter">Email address</label>
+      <input id="emailInputFooter" name="email" type="email" inputmode="email" autocomplete="email"
+             placeholder="you@example.com" required />
+      <button id="submitBtnFooter" type="submit">
+        <span class="btn-text">Join the waitlist</span>
+        <span class="btn-loading" hidden>Joining…</span>
+      </button>
+    </form>
+    <p class="message success" data-success hidden role="status">
+      You are on the list. We will email you once, when there is room.
+    </p>
+    <p class="message error" data-error hidden role="alert"></p>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p class="brand-small">Shamac</p>
+    <p class="footer-copy">Give your word. Keep it.</p>
+    <p class="footer-links">
+      <a href="mailto:byldforfun@gmail.com">byldforfun@gmail.com</a>
+      <span aria-hidden="true">·</span>
+      <a href="#privacy">Privacy</a>
+    </p>
+    <p class="footer-legal">© <span data-year>2026</span> Shamac. Not released yet.</p>
+  </div>
+</footer>
+
+<script src="config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

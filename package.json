@@ -1,0 +1,23 @@
+{
+  "name": "shamac-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shamac marketing site and waitlist",
+  "scripts": {
+    "clean": "rimraf public",
+    "build": "npm run clean && npm run copy && npm run inject-env && npm run minify:js && npm run minify:css",
+    "copy": "copyfiles index.html images/**/* public",
+    "inject-env": "node build-scripts/inject-env.js",
+    "minify:js": "terser script.js -c passes=2,drop_console=true -m -o public/script.js",
+    "minify:css": "cleancss -o public/styles.css styles.css",
+    "serve": "npx --yes serve public",
+    "dev": "npx --yes serve .",
+    "rename": "node rename.mjs"
+  },
+  "devDependencies": {
+    "clean-css-cli": "5.6.3",
+    "copyfiles": "2.4.1",
+    "rimraf": "5.0.10",
+    "terser": "5.36.0"
+  }
+}
