@@ -60,7 +60,9 @@ First-time setup:
 1. Push the repo to GitHub.
 2. Settings → Pages → **Source: GitHub Actions**.
 3. Settings → Secrets and variables → Actions → **New repository secret**, named
-   `WAITLIST_URL`, holding the Apps Script `/exec` URL.
+   `WAITLIST_URL`, holding the Apps Script `/exec` URL. A repository *variable* of the same
+   name works too. It must be repository-scoped: a secret attached to the `github-pages`
+   environment is invisible to the build job, since only the deploy job runs there.
 4. Push, or run the workflow from the Actions tab. The run summary links the live URL.
 
 Do step 3 before the first run: without it the build exits non-zero on purpose rather than

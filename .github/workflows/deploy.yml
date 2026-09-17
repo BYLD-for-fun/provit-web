@@ -1,8 +1,12 @@
 # Builds the site and publishes public/ to GitHub Pages.
 #
-# WAITLIST_URL must exist as a repository secret before the first run. Without it
+# WAITLIST_URL must be visible to the build job before the first run. Without it
 # build-scripts/inject-env.js exits non-zero on purpose, so a missing endpoint fails the
 # deploy instead of shipping a form that drops every signup.
+#
+# Either a repository secret or a repository variable works. A variable is arguably the
+# honest home for it -- the URL ships to every visitor in config.js regardless -- but a
+# secret keeps it out of the Actions UI, so both are accepted.
 name: Deploy to GitHub Pages
 
 on:
@@ -33,9 +37,30 @@ jobs:
 
       - run: npm ci
 
+      # A missing endpoint is the standard first-deploy failure, and the build's own error
+      # cannot tell "never added" apart from "added somewhere this job cannot see". Worth
+      # knowing: a secret scoped to the github-pages *environment* is invisible here,
+      # because only the deploy job declares an environment.
+      - name: Check WAITLIST_URL reaches the build job
+        env:
+          WAITLIST_URL: ${{ secrets.WAITLIST_URL || vars.WAITLIST_URL }}
+        run: |
+          if [ -z "$WAITLIST_URL" ]; then
+            echo "::error title=WAITLIST_URL is empty::Add it as a repository secret or variable"
+            echo "WAITLIST_URL arrived empty in the build job. One of these is true:"
+            echo "  1. It was never added."
+            echo "  2. It is scoped to the github-pages environment, which only the deploy"
+            echo "     job can read. Move it to repository scope."
+            echo "  3. It is named something else. The name must be exactly WAITLIST_URL."
+            echo
+            echo "Settings > Secrets and variables > Actions > New repository secret."
+            exit 1
+          fi
+          echo "WAITLIST_URL is present (${#WAITLIST_URL} characters)."
+
       - run: npm run build
         env:
-          WAITLIST_URL: ${{ secrets.WAITLIST_URL }}
+          WAITLIST_URL: ${{ secrets.WAITLIST_URL || vars.WAITLIST_URL }}
 
       # The Pages artifact path skips Jekyll already; this keeps a branch-based deploy
       # working too if anyone ever switches away from Actions.
